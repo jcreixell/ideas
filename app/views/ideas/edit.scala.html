@@ -1,0 +1,13 @@
+@(ideaForm: Form[Idea])
+
+@import helper._
+@import models.Idea
+
+@main("Edit idea") {
+  <h1>Edit idea</h1>
+  @form(routes.Ideas.update(ideaForm.get.id)) {
+    @inputText(ideaForm("title"))
+    @inputText(ideaForm("content"))
+    <button type="submit">Update</button>
+  }
+}

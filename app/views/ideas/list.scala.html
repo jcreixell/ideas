@@ -1,0 +1,22 @@
+@(ideas: Iterable[models.Idea])
+
+@main("All ideas") {
+  <h1>All ideas</h1>
+  @if(ideas.isEmpty) {
+    <p>No ideas found</p>
+  } else {
+    <ul>
+       @for(idea <- ideas) {
+        <li>
+          @idea.title
+          <a href="@routes.Ideas.edit(idea.id)">Edit</a>
+          @helper.form(routes.Ideas.delete(idea.id)) {
+          <button type="submit">Delete</button>
+        }
+        </li>
+       }
+    </ul>
+  }
+
+  <a href="@routes.Ideas.add">Add a new idea</a>
+}
