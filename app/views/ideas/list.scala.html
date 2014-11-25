@@ -1,4 +1,4 @@
-@(ideas: Iterable[models.Idea])
+@(ideas: List[Idea])(implicit flash: play.api.mvc.Flash)
 
 @main("All ideas") {
   <h1>All ideas</h1>
@@ -6,15 +6,15 @@
     <p>No ideas found</p>
   } else {
     <ul>
-       @for(idea <- ideas) {
+      @ideas.map { idea =>
         <li>
           @idea.title
-          <a href="@routes.Ideas.edit(idea.id)">Edit</a>
-          @helper.form(routes.Ideas.delete(idea.id)) {
-          <button type="submit">Delete</button>
-        }
+          <a href="@routes.Ideas.edit(idea.id.get)">Edit</a>
+          @helper.form(routes.Ideas.delete(idea.id.get)) {
+            <button type="submit">Delete</button>
+          }
         </li>
-       }
+      }
     </ul>
   }
 

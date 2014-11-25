@@ -1,48 +1,59 @@
 package controllers
 
 import play.api.mvc._
-import scala.collection.mutable.HashMap
 import play.api.data._
 import play.api.data.Forms._
-import models.Idea
+
+import anorm._
+
+import models._
+import views._
 
 object Ideas extends Controller {
 
-  val ideas: HashMap[Int, Idea] = new HashMap[Int, Idea]
-
   val form = Form(
     mapping(
-      "title" -> text,
-      "content" -> text)(Idea.apply)(Idea.unapply))
+      "id" -> ignored(None:Option[Long]),
+      "title" -> nonEmptyText,
+      "content" -> optional(text))(Idea.apply)(Idea.unapply))
   
-  def list = Action {
-    Ok(views.html.ideas.list(ideas.values))
+  def list = Action { implicit request =>
+    Ok(html.ideas.list(Idea.list))
   }
 
   def add = Action {
-    Ok(views.html.ideas.add(form))
+    Ok(html.ideas.add(form))
   }
 
   def save = Action { implicit request =>
-      val idea = form.bindFromRequest.get
-      ideas.put(idea.id, idea)
-      Redirect(routes.Ideas.list)
+    form.bindFromRequest.fold(
+      formWithErrors => BadRequest(html.ideas.add(formWithErrors)),
+      idea => {
+        Idea.insert(idea)
+        Redirect(routes.Ideas.list).flashing("success" -> "Idea %s has been created".format(idea.title))
+      }
+      
+    )
   }
 
-  def edit(id: Int) = Action {
-    val bindedForm = form.fill(ideas.get(id).get)
-    Ok(views.html.ideas.edit(bindedForm))
+  def edit(id: Long) = Action {
+    Idea.findById(id).map { idea =>
+      Ok(html.ideas.edit(id, form.fill(idea)))
+    }.getOrElse(NotFound)
   }
 
-  def update(id: Int) = Action { implicit request =>
-    val idea = form.bindFromRequest.get
-    idea.id = id
-    ideas.put(id, idea)
-    Redirect(routes.Ideas.list)
+  def update(id: Long) = Action { implicit request =>
+    form.bindFromRequest.fold(
+      formWithErrors => BadRequest(html.ideas.edit(id, formWithErrors)),
+      idea => {
+        Idea.update(id, idea)
+        Redirect(routes.Ideas.list).flashing("success" -> "Idea %s has been updated".format(idea.title))
+      }
+    )
   }
 
-  def delete(id: Int) = Action {
-    ideas.remove(id)
-    Redirect(routes.Ideas.list)
+  def delete(id: Long) = Action {
+    Idea.delete(id)
+    Redirect(routes.Ideas.list).flashing("success" -> "Idea has been deleted")
   }
 }
