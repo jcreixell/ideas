@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                           controllers.Ideas.list
 GET     /ideas                      controllers.Ideas.list
 GET     /ideas/add                  controllers.Ideas.add
 POST    /ideas                      controllers.Ideas.save

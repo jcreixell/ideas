@@ -6,7 +6,7 @@ import play.api.db.DB
 import play.api.Play.current
 
 case class Idea(id: Option[Long] = None, title: String, content: Option[String]) {
-  override def toString = s"$title -> $content"
+  override def toString = s"$id -> $title -> $content"
 }
 
 object Idea {
